@@ -1,0 +1,50 @@
+### Networking
+    - [ ] Connection
+        - [ ] Peer-to-peer connection with host-client relationship
+        - [ ] Host should open the connection with one of the following, in order of preference: pwnat, UPnP, port forwarding, UDP hole punching
+        - [ ] (Optional) Create an invitation code when hosting that contains the connection address to access the host
+    - [ ] Gameplay
+        - [ ] Rollback netcode, recalculate the state of the game based on inputs from the past
+        - [ ] Who to trust when game states diverge between players? (Trust host for now)
+        - [ ] (Optional) Cheat protection checks to drop illegal inputs
+### Controls
+    - [x] Add support for keyboards
+    - [ ] Add support for controllers
+    - [ ] Allow button remapping
+    - [ ] Implement an input buffer to make controls more lenient
+### Gameplay
+    - [ ] Actions
+        - Regular moves involve only a single button press and maybe directional input
+        - Special moves may involve either multiple buttons or complex directional input buffered before the button press
+        - [x] Read player input to translate it to character actions
+        - [ ] Add more universal actions like jump and crouch
+    - [ ] Characters
+        - [ ] Create at least one character with its own set of regular and special moves (at least 3 regular and 1 special)
+        - [ ] Each move should have its own set of a hitbox and a hurtbox
+        - [ ] Add hitstun, blockstun and knocked down states that disallow the character from acting
+    - [ ] Arena
+        - [ ] Assume the size of the actionable arena matching a 16:9 screen
+        - [ ] Create arena corners
+        - [ ] Scroll camera through arena along with characters moving
+        - [ ] Prevent characters from leaving the game screen even if not close to the corner
+### Visuals
+    - [x] Separate rendition of the game state from the game loop
+    - [x] Render the game state on the screen
+    - [ ] Resize the render depending on the window/screen size
+    - [ ] Add hitstop to moves on hit or block
+    - [ ] Create different sprites for each move that match the given move's hitbox and hurtbox
+### Menu
+    - [ ] A separate game state (not counting ticks here) that allows the player to choose a game mode
+    - [ ] Character Select
+    - [ ] Local play
+        - Player versus player with a controller assigned to each 
+    - [ ] Netplay
+        - Player versus player with game state communication between peers
+    - [ ] (Optional) Training mode
+    - [ ] (Optional) Vs CPU
+### (Preferable) Sound design
+    - [ ] Add sound effects to character actions
+### (Optional) Mechanics
+    - [ ] Allow a lower tickrate in training mode to practice combos
+    - [ ] Combo practice tool with pauses until the player inputs a correct action
+    - [ ] Replay system with an option to enter and play the match from a given frame
