@@ -34,16 +34,8 @@ func (l *loop) Run() {
 		UpdateGameState(l.gameState, tickState)
 
 		renderContext := GenerateRenderContext(l.gameState)
-		sendToRender(renderContext, l.renderChannel)
+		l.renderChannel <- renderContext
 
 		sdl.Delay(DESIRED_DELTA_MS)
-	}
-}
-
-func sendToRender(ctx *render.Context, renderChannel chan *render.Context) {
-	// Try to send the game state to render but not block the loop
-	select {
-	case renderChannel <- ctx:
-	default:
 	}
 }
