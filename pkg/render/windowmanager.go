@@ -42,18 +42,6 @@ func (wm *WindowManager) Cleanup() {
 	wm.window.Destroy()
 }
 
-func (wm *WindowManager) Render(ctx *Context) {
-	wm.surface.FillRect(nil, 0)
-
-	for _, characterRender := range ctx.CharacterRenders {
-		color := characterRender.Color
-		pixel := sdl.MapRGBA(wm.surface.Format, color.R, color.G, color.B, color.A)
-		wm.surface.FillRect(characterRender.Box, pixel)
-	}
-
-	wm.window.UpdateSurface()
-}
-
 func (wm *WindowManager) Loop(ch chan *Context) {
 	var refreshRate = uint64(wm.refreshRate)
 	var desiredDelta = float32(1000) / float32(refreshRate)
@@ -69,4 +57,20 @@ func (wm *WindowManager) Loop(ch chan *Context) {
 		wm.Render(ctx)
 		lastFrameTime = sdl.GetTicks64()
 	}
+}
+
+func (wm *WindowManager) Render(ctx *Context) {
+	wm.surface.FillRect(nil, 0)
+
+	for _, characterRender := range ctx.CharacterRenders {
+		if len(characterRender.Boxes) == 0 {
+			continue
+		}
+
+		color := characterRender.Color
+		pixel := sdl.MapRGBA(wm.surface.Format, color.R, color.G, color.B, color.A)
+		wm.surface.FillRects(characterRender.Boxes, pixel)
+	}
+
+	wm.window.UpdateSurface()
 }

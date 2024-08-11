@@ -14,13 +14,13 @@
     - [ ] Implement an input buffer to make controls more lenient
 ### Gameplay
     - [ ] Actions
-        - Regular moves involve only a single button press and maybe directional input
-        - Special moves may involve either multiple buttons or complex directional input buffered before the button press
+        - [x] Regular moves involve only a single button press and maybe directional input
+        - [ ] Special moves may involve either multiple buttons or complex directional input buffered before the button press
         - [x] Read player input to translate it to character actions
         - [ ] Add more universal actions like jump and crouch
     - [ ] Characters
         - [ ] Create at least one character with its own set of regular and special moves (at least 3 regular and 1 special)
-        - [ ] Each move should have its own set of a hitbox and a hurtbox
+        - [x] Each move should have its own set of a hitbox and a hurtbox
         - [ ] Add hitstun, blockstun and knocked down states that disallow the character from acting
     - [ ] Arena
         - [ ] Assume the size of the actionable arena matching a 16:9 screen

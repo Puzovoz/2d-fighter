@@ -26,7 +26,7 @@ func NewState() *state {
 		characters: []*character.Character{
 			{
 				KeyboardControls: controls.GetDefaultKeyboardControls(),
-				Hitbox:           &sdl.Rect{X: 100, Y: 100, W: 20, H: 20},
+				Origin:           sdl.Point{X: 100, Y: 100},
 			},
 		},
 		keyboardState: sdl.GetKeyboardState(),
@@ -54,6 +54,20 @@ func ProcessEvents(gs *state) *tickState {
 
 func UpdateGameState(gs *state, ts *tickState) {
 	for _, chara := range gs.characters {
+		if chara.CurrentMove != nil {
+			chara.CurrentMoveFrame += 1
+
+			currentMove := chara.CurrentMove
+			moveFrameCount := (currentMove.StartupFrameCount +
+				currentMove.ActiveFrameCount +
+				currentMove.RecoveryFrameCount)
+
+			if chara.CurrentMoveFrame > moveFrameCount {
+				chara.CurrentMove = nil
+				chara.State = character.IDLE
+			}
+		}
+
 		chara.ProcessActions(ts.characterActions[chara])
 	}
 }
@@ -62,10 +76,19 @@ func GenerateRenderContext(gs *state) *render.Context {
 	characterRenders := make([]render.CharacterRenderContext, 0)
 
 	for _, chara := range gs.characters {
-		characterRenders = append(characterRenders, render.CharacterRenderContext{
-			Box:   chara.Hitbox,
-			Color: &sdl.Color{R: 255, G: 0, B: 0, A: 255},
-		})
+		boundaries := chara.GetBoundaries()
+		if boundaries.Attackbox != nil {
+			characterRenders = append(characterRenders, render.CharacterRenderContext{
+				Boxes: boundaries.Attackbox,
+				Color: sdl.Color{R: 255, G: 0, B: 0, A: 100},
+			})
+		}
+		if boundaries.Hurtbox != nil {
+			characterRenders = append(characterRenders, render.CharacterRenderContext{
+				Boxes: boundaries.Hurtbox,
+				Color: sdl.Color{R: 0, G: 0, B: 255, A: 100},
+			})
+		}
 	}
 
 	return &render.Context{

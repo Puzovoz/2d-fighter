@@ -10,8 +10,8 @@ type Manager interface {
 }
 
 type CharacterRenderContext struct {
-	Box   *sdl.Rect
-	Color *sdl.Color
+	Boxes []sdl.Rect
+	Color sdl.Color
 }
 
 type Context struct {
