@@ -49,33 +49,17 @@ func (wm *WindowManager) Loop(ch chan *Context) {
 	var desiredDelta = float32(1000) / float32(refreshRate) // Time between frames for preferred refresh rate.
 
 	var lastFrameTime uint64 = 0
-	var ctx *Context
-	var timeout = time.Duration(desiredDelta) * time.Millisecond
-	for {
-		select {
-		case ctx = <-ch:
-			// Update the render context.
-		case <-time.After(timeout):
-			// Reuse the last context if the render loop outpaces the game loop.
-		}
+	for ctx := range ch {
+		// Render the game state as soon as it is received to reduce the time between player input and visual feedback.
+		wm.Render(ctx)
 
-		if ctx == nil {
-			// Still have not received a render context, cannot proceed.
-			continue
-		}
-
-		// Limit the frame rate by checking if it's time to render the next frame.
+		// Try to achieve the target time between frames by delaying the next frame.
 		now := sdl.GetTicks64()
 		timeBetweenFrames := now - lastFrameTime
-		if float32(timeBetweenFrames) >= desiredDelta {
-			// Enough time passed since the last frame, rendering.
-			wm.Render(ctx)
-			lastFrameTime = sdl.GetTicks64()
-			timeout = time.Duration(desiredDelta) * time.Millisecond
-		} else {
-			// Received a new context but not yet ready to render, waiting a bit.
-			timeout = time.Duration(desiredDelta-float32(timeBetweenFrames)) * time.Millisecond
+		if float32(timeBetweenFrames) < desiredDelta {
+			time.Sleep(time.Duration(uint64(desiredDelta)-timeBetweenFrames) * time.Millisecond)
 		}
+		lastFrameTime = now
 	}
 }
 
