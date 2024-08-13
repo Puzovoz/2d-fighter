@@ -6,7 +6,7 @@ import (
 )
 
 type Character struct {
-	KeyboardControls controls.KeyboardControls
+	KeyboardControls controls.KeyboardLayout
 	Origin           sdl.Point
 	State            ActionState
 	CurrentMove      *Move
@@ -25,15 +25,21 @@ const (
 	KNOCKDOWN ActionState = iota
 )
 
+// Process player input and translate it into character activity.
 func (c *Character) ProcessActions(actions []controls.PlayerAction) {
 	for _, action := range actions {
 		switch action {
 		case controls.MOVE_LEFT:
-			c.Origin.X -= 3
+			if c.State == IDLE {
+				c.Origin.X -= 3
+			}
 		case controls.MOVE_RIGHT:
-			c.Origin.X += 3
+			if c.State == IDLE {
+				c.Origin.X += 3
+			}
 		case controls.BUTTON_A:
-			c.StartMove(GetPunch())
+			move := GetPunch()
+			c.StartMove(&move)
 		}
 	}
 }
@@ -53,7 +59,7 @@ func (c *Character) GetBoundaries() Boundaries {
 	switch c.State {
 	case IDLE:
 		boundaries = Boundaries{
-			Hurtbox:   Hitbox{sdl.Rect{X: 0, Y: 0, H: 20, W: 20}},
+			Hurtbox:   Hitbox{sdl.Rect{X: -10, Y: 0, H: 20, W: 20}},
 			Attackbox: nil,
 		}
 	case ATTACKING:

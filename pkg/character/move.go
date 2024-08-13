@@ -9,42 +9,47 @@ import (
 type MoveState uint8
 
 const (
-	STARTUP  MoveState = iota
-	ACTIVE   MoveState = iota
-	RECOVERY MoveState = iota
+	STARTUP  MoveState = iota // Has not yet produced an Attackbox, counterable
+	ACTIVE   MoveState = iota // Is currently producing Attackboxes, counterable
+	RECOVERY MoveState = iota // Finished producing Attackboxes, punishable
 )
 
 type Move struct {
-	StartupFrameCount  uint16
-	ActiveFrameCount   uint16
-	RecoveryFrameCount uint16
+	totalFrameCount uint16
 
-	BoundariesProgression      []Boundaries
-	BoundariesFrameProgression []uint16
+	boundariesProgression      []Boundaries // Snapshots of the Move's hitboxes that progress over its duration.
+	boundariesFrameProgression []uint16     // Sorted slice of frame numbers at which the move progresses.
 }
 
-func GetPunch() *Move {
-	punch := &Move{
-		StartupFrameCount:  20,
-		ActiveFrameCount:   20,
-		RecoveryFrameCount: 20,
+func GetPunch() Move {
+	punch := Move{
+		totalFrameCount: 11,
 
-		BoundariesProgression: []Boundaries{
-			{Attackbox: nil, Hurtbox: Hitbox{sdl.Rect{X: 0, Y: 0, W: 15, H: 20}}},
-			{Attackbox: Hitbox{sdl.Rect{X: 20, Y: 10, W: 8, H: 3}}, Hurtbox: Hitbox{sdl.Rect{X: 0, Y: 0, W: 20, H: 20}}},
-			{Attackbox: nil, Hurtbox: Hitbox{sdl.Rect{X: 5, Y: 0, W: 20, H: 20}}},
+		boundariesProgression: []Boundaries{
+			{Attackbox: nil, Hurtbox: Hitbox{sdl.Rect{X: -10, Y: 0, W: 15, H: 20}}},
+			{Attackbox: Hitbox{sdl.Rect{X: 10, Y: 10, W: 8, H: 3}}, Hurtbox: Hitbox{sdl.Rect{X: -10, Y: 0, W: 20, H: 20}}},
+			{Attackbox: nil, Hurtbox: Hitbox{sdl.Rect{X: -5, Y: 0, W: 20, H: 20}}},
 		},
-		BoundariesFrameProgression: []uint16{21, 41},
+		boundariesFrameProgression: []uint16{4, 7},
 	}
 
 	return punch
 }
 
-func (m *Move) BoundariesFromFrame(frame uint16) Boundaries {
-	progressionLength := len(m.BoundariesFrameProgression)
+// Given a frame number, calculate Character's Boundaries from the hitbox progression of the move.
+func (m Move) BoundariesFromFrame(frame uint16) Boundaries {
+	progressionLength := len(m.boundariesFrameProgression)
+
+	// Given a sorted slice of frame numbers, at which Character's Boundaries should transition to the next stage,
+	// find the index at which character's
 	currentIndex := sort.Search(progressionLength, func(i int) bool {
-		return frame <= m.BoundariesFrameProgression[i]
+		return frame <= m.boundariesFrameProgression[i]
 	})
 
-	return m.BoundariesProgression[currentIndex]
+	return m.boundariesProgression[currentIndex]
+}
+
+// Calculate the total frame count of a move, during which a character regularly would not be able to act until it ends.
+func (m Move) TotalFrameCount() uint16 {
+	return m.totalFrameCount
 }

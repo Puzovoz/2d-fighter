@@ -6,8 +6,8 @@ import (
 
 type PlayerAction uint8
 
+// Set of all possible player inputs.
 const (
-	NO_ACTION  PlayerAction = iota
 	MOVE_LEFT  PlayerAction = iota
 	MOVE_RIGHT PlayerAction = iota
 	BUTTON_A   PlayerAction = iota
@@ -15,11 +15,13 @@ const (
 	BUTTON_C   PlayerAction = iota
 )
 
-type KeyboardControls map[sdl.Scancode]PlayerAction
-type GamepadControls map[sdl.GameControllerButton]PlayerAction
+// Control layouts for different input devices.
+type KeyboardLayout map[sdl.Scancode]PlayerAction
+type GamepadLayout map[sdl.GameControllerButton]PlayerAction
 
-func GetDefaultKeyboardControls() KeyboardControls {
-	return KeyboardControls{
+// Generate a control layout for keyboard mapped to default keys.
+func GetDefaultKeyboardControls() KeyboardLayout {
+	return KeyboardLayout{
 		sdl.SCANCODE_A: MOVE_LEFT,
 		sdl.SCANCODE_D: MOVE_RIGHT,
 		sdl.SCANCODE_H: BUTTON_A,
@@ -28,8 +30,9 @@ func GetDefaultKeyboardControls() KeyboardControls {
 	}
 }
 
-func (kc KeyboardControls) Process(keyboardState []uint8) []PlayerAction {
-	actions := make([]PlayerAction, 0, 5)
+// Process keyboard input and translate it to player input.
+func (kc KeyboardLayout) Process(keyboardState []uint8) []PlayerAction {
+	actions := make([]PlayerAction, 0)
 
 	for key, action := range kc {
 		if pressed := keyboardState[key]; pressed > 0 {
